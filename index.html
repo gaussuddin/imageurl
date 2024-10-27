@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script type="text/javascript">
+  function passwordProtect() {
+    var password = prompt("Enter the password:");
+    if (password !== "password") {
+      alert("Incorrect password.");
+      window.location.href = "error.html"; // Redirects to an error page or home page
+    }
+  }
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WordPress Image URL Generator</title>
@@ -51,24 +61,41 @@
         button {
             padding: 10px 20px;
             font-size: 16px;
-            color: white;
-            background-color: #007bff;
+            color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s ease-in-out;
+            transition: all 0.1s ease;
+        }
+        button:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+        button:focus {
+            outline: 3px solid rgba(0, 0, 0, 1);
+            outline-offset: 3px;
         }
         button:disabled {
             background-color: #cccccc;
+            cursor: not-allowed;
         }
-        button:hover {
-            background-color: #0056b3;
+        .paste-button {
+            background-color: #007bff;
         }
-        button:active {
-            transform: scale(0.98);
+        .copy-url-button {
+            background-color: #28a745;
         }
         .clear-button {
             background-color: #ff4d4d;
+        }
+        .copy-image-tag-button {
+            background-color: #20c997;
+        }
+        .clear-all-button {
+            background-color: #ffa500;
+            padding: 12px 25px;
+            font-size: 18px;
+            margin-top: 20px;
         }
         .preview-container {
             margin-top: 15px;
@@ -83,76 +110,71 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        .copy-image-tag-button {
-            background-color: #28a745; /* Green */
+        /* Floating "Go to Top" button */
+        .go-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none; /* Hidden by default */
+            transition: all 0.3s ease;
         }
-        .copy-image-tag-button:hover {
-            background-color: #218838; /* Darker green */
+        .go-to-top:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
         }
     </style>
-<script type="text/javascript">
-  function passwordProtect() {
-    var password = prompt("Enter the password:");
-    if (password !== "password") {
-      alert("Incorrect password.");
-      window.location.href = "error.html"; // Redirects to an error page or home page
-    }
-  }
-</script>
 </head>
+<body>
 <body onload="passwordProtect()">
   <!-- Your content goes here -->
   <h1>Protected Content</h1>
   <p>This content is password-protected.</p>
+</body>
+
     <div id="url-container">
-        <!-- URL Input Box 1 -->
-        <div class="url-box">
-            <label for="user-url-1">Enter URL 1:</label>
-            <input type="text" id="user-url-1" placeholder="https://example.com" oninput="modifyURL(1)">
-            <input type="text" id="modified-url-1" readonly>
-            <div class="button-container">
-                <button onclick="pasteFromClipboard(1)">Paste from Clipboard</button>
-                <button onclick="copyToClipboard(1)" id="copy-button-1" disabled>Copy URL</button>
-                <button onclick="clearInput(1)" class="clear-button" id="clear-button-1">Clear</button>
-                <button onclick="copyImageTag(1)" id="copy-image-tag-button-1" disabled class="copy-image-tag-button">Copy Image Tag</button>
-            </div>
-            <div id="preview-container-1" class="preview-container">
-                <img id="image-preview-1" src="" alt="Image Preview 1">
-            </div>
-        </div>
-
-        <!-- URL Input Box 2 -->
-        <div class="url-box">
-            <label for="user-url-2">Enter URL 2:</label>
-            <input type="text" id="user-url-2" placeholder="https://example.com" oninput="modifyURL(2)">
-            <input type="text" id="modified-url-2" readonly>
-            <div class="button-container">
-                <button onclick="pasteFromClipboard(2)">Paste from Clipboard</button>
-                <button onclick="copyToClipboard(2)" id="copy-button-2" disabled>Copy URL</button>
-                <button onclick="clearInput(2)" class="clear-button" id="clear-button-2">Clear</button>
-                <button onclick="copyImageTag(2)" id="copy-image-tag-button-2" disabled class="copy-image-tag-button">Copy Image Tag</button>
-            </div>
-            <div id="preview-container-2" class="preview-container">
-                <img id="image-preview-2" src="" alt="Image Preview 2">
-            </div>
-        </div>
-
-        <!-- URL Input Box 3 -->
-        <div class="url-box">
-            <label for="user-url-3">Enter URL 3:</label>
-            <input type="text" id="user-url-3" placeholder="https://example.com" oninput="modifyURL(3)">
-            <input type="text" id="modified-url-3" readonly>
-            <div class="button-container">
-                <button onclick="pasteFromClipboard(3)">Paste from Clipboard</button>
-                <button onclick="copyToClipboard(3)" id="copy-button-3" disabled>Copy URL</button>
-                <button onclick="clearInput(3)" class="clear-button" id="clear-button-3">Clear</button>
-                <button onclick="copyImageTag(3)" id="copy-image-tag-button-3" disabled class="copy-image-tag-button">Copy Image Tag</button>
-            </div>
-            <div id="preview-container-3" class="preview-container">
-                <img id="image-preview-3" src="" alt="Image Preview 3">
-            </div>
-        </div>
+        <!-- URL Input Boxes -->
+        <script>
+            function generateUrlBox(index) {
+                return `
+                <div class="url-box">
+                    <label for="user-url-${index}">Enter URL ${index}:</label>
+                    <input type="text" id="user-url-${index}" placeholder="https://example.com" oninput="modifyURL(${index})">
+                    <input type="text" id="modified-url-${index}" readonly>
+                    <div class="button-container">
+                        <button onclick="pasteFromClipboard(${index})" class="paste-button">Paste from Clipboard</button>
+                        <button onclick="copyToClipboard(${index})" id="copy-button-${index}" disabled class="copy-url-button">Copy URL</button>
+                        <button onclick="clearInput(${index})" class="clear-button">Clear</button>
+                        <button onclick="copyImageTag(${index})" id="copy-image-tag-button-${index}" disabled class="copy-image-tag-button">Copy Image Tag</button>
+                    </div>
+                    <div id="preview-container-${index}" class="preview-container">
+                        <img id="image-preview-${index}" src="" alt="Image Preview ${index}">
+                    </div>
+                </div>`;
+            }
+            document.addEventListener("DOMContentLoaded", function() {
+                const urlContainer = document.getElementById("url-container");
+                for (let i = 1; i <= 4; i++) {
+                    urlContainer.innerHTML += generateUrlBox(i);
+                }
+            });
+        </script>
     </div>
+
+    <!-- Clear All Button -->
+    <div class="button-container">
+        <button onclick="clearAllInputs()" class="clear-all-button">Clear All</button>
+    </div>
+
+    <!-- Floating Go to Top Button -->
+    <button onclick="scrollToTop()" id="go-to-top-btn" class="go-to-top">⬆</button>
 
     <script>
         function modifyURL(index) {
@@ -163,31 +185,25 @@
             var modifiedUrl = userUrl.replace("https://", "https://i0.wp.com/");
             document.getElementById("modified-url-" + index).value = modifiedUrl;
             document.getElementById("copy-button-" + index).disabled = false;
-            document.getElementById("copy-image-tag-button-" + index).disabled = false; // Enable Copy Image Tag button
+            document.getElementById("copy-image-tag-button-" + index).disabled = false;
             previewImage(modifiedUrl, index);
         }
-    </script>
 
-    <script>
         function clearInput(index) {
             document.getElementById("user-url-" + index).value = "";
             document.getElementById("modified-url-" + index).value = "";
             document.getElementById("copy-button-" + index).disabled = true;
-            document.getElementById("copy-image-tag-button-" + index).disabled = true; // Disable Copy Image Tag button
-            document.getElementById("preview-container-" + index).style.display = "none"; // Hide image preview
+            document.getElementById("copy-image-tag-button-" + index).disabled = true;
+            document.getElementById("preview-container-" + index).style.display = "none";
         }
-    </script>
 
-    <script>
         function copyToClipboard(index) {
             var modifiedUrl = document.getElementById("modified-url-" + index).value;
             navigator.clipboard.writeText(modifiedUrl).catch(function(err) {
                 console.error("Failed to copy URL:", err);
             });
         }
-    </script>
 
-    <script>
         function pasteFromClipboard(index) {
             navigator.clipboard.readText().then(function(text) {
                 document.getElementById("user-url-" + index).value = text;
@@ -196,20 +212,16 @@
                 console.error("Failed to read clipboard contents:", err);
             });
         }
-    </script>
 
-    <script>
         function previewImage(url, index) {
             var previewContainer = document.getElementById("preview-container-" + index);
             var imgElement = document.getElementById("image-preview-" + index);
             imgElement.src = url;
             imgElement.onload = function() {
-                previewContainer.style.display = "flex"; // Show the image preview
+                previewContainer.style.display = "flex";
             };
         }
-    </script>
 
-    <script>
         function copyImageTag(index) {
             var modifiedUrl = document.getElementById("modified-url-" + index).value;
             var img = new Image();
@@ -221,6 +233,26 @@
                     console.error("Failed to copy image tag:", err);
                 });
             };
+        }
+
+        // Clear all inputs and reset buttons and previews
+        function clearAllInputs() {
+            for (let i = 1; i <= 4; i++) {
+                clearInput(i);
+            }
+        }
+
+        // Scroll to Top Button visibility and functionality
+        const goToTopButton = document.getElementById("go-to-top-btn");
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                goToTopButton.style.display = "block";
+            } else {
+                goToTopButton.style.display = "none";
+            }
+        };
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
